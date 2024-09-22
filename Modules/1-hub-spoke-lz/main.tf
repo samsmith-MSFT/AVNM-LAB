@@ -47,14 +47,6 @@ resource "azurerm_subnet" "spoke_subnets" {
   depends_on           = [azurerm_virtual_network.spoke_vnets]
 }
 
-resource "azurerm_subnet" "hub_gateway_subnet" {
-  name                 = "GatewaySubnet"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.hub_vnet.name
-  address_prefixes     = var.subnet_space_gw
-  depends_on           = [azurerm_virtual_network.hub_vnet]
-}
-
 resource "azurerm_subnet" "hub_fw_subnet" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -103,29 +95,6 @@ resource "azurerm_firewall" "firewall" {
 
 resource "azurerm_public_ip" "firewall" {
   name                = "firewall-ip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = var.location
-  allocation_method   = "Static"
-  sku                 = "Standard"
-}
-
-resource "azurerm_virtual_network_gateway" "vpn" {
-  name                = "vng-hub"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
-  type                = "Vpn"
-  vpn_type            = "RouteBased"
-  sku                 = "VpnGw1"
-  active_active       = false
-  ip_configuration {
-    name                          = "GatewayIpConfig"
-    subnet_id                     = azurerm_subnet.hub_gateway_subnet.id
-    public_ip_address_id          = azurerm_public_ip.vpngw1.id
-  }
-}
-
-resource "azurerm_public_ip" "vpngw1" {
-  name                = "vpngw1-ip"
   resource_group_name = azurerm_resource_group.rg.name
   location            = var.location
   allocation_method   = "Static"
