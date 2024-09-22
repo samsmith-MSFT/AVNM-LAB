@@ -1,5 +1,5 @@
 # Change to the modules directory
-Set-Location -Path "modules"
+Set-Location -Path "Modules"
 
 $order = @("3-avnm", "2-compute", "1-hub-spoke-lz")
 
