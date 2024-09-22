@@ -1,0 +1,5 @@
+subscription_id = "<subID>"
+location = "<location>"
+resource_group_name = "<rgName>"
+avnm_name           = "avnm-demo"
+vnet_name_hub       = "vnet-avnm-hub"
