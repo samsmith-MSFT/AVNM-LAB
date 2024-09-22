@@ -11,8 +11,5 @@
     "ghcr.io/devcontainers/features/git-lfs:1": {
       "version": "latest"
     }
-  },
-  "extensions": [
-        "GitHub.vscode-github-actions"
-    ]
+  }
 }
