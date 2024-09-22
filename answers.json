@@ -1,5 +1,5 @@
 {
-  "subscriptionId": "20836408-7996-49cf-803b-d479a4041a48",
-  "location": "eastus2",
-  "resourceGroupName": "rg-avnm-lab-eastus2"
+  "subscriptionId": "<your-subscription-id>",
+  "location": "<location>",
+  "resourceGroupName": "<resource-group-name>"
 }
