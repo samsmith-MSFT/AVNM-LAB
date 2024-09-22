@@ -50,4 +50,9 @@ This Terraform lab environment will deploy an Azure Virtual Network Manager (AVN
 Ensure you have the necessary permissions to create and manage resources in your Azure subscription.
 Review the Terraform configurations and scripts to understand the resources being deployed and managed. Ensure that the SKU used in the `main.tf` in the `2-compute` module is supported in your chosen location. I would suggest useast2 for the givin SKU or change the SKU as necessary.
 
+**Azure VMs login info**
+
+- `Username` = ```azureadmin```
+- `Password` = ```AzureAdmin123!```
+
 Happy deploying!
