@@ -24,11 +24,6 @@ variable "subnet_space_fw" {
   type        = list(string)
 }
 
-variable "subnet_space_gw" {
-  description = "Subnet space of the virtual network"
-  type        = list(string)
-}
-
 variable "vnet_name_spokes" {
   description = "Name of the virtual network"
   type        = list(string)
