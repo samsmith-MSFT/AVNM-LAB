@@ -37,7 +37,7 @@ This Terraform lab environment will deploy an Azure Virtual Network Manager (AVN
 
     ```
     .\deploy.ps1
-**Clean Up the Lab**
+## Clean Up the Lab
    
    When you're ready to clean up the lab environment, run the destroy.ps1 script:
    
