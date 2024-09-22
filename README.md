@@ -1,4 +1,3 @@
-readme
 # Azure Virtual Network Manager Lab
 
 This Terraform lab environment will deploy an Azure Virtual Network Manager (AVNM) lab. This lab uses GitHub Codespaces which allows you to deploy a containerized dev environment with all dependencies included. Follow the steps below to deploy and manage the lab environment.
@@ -21,3 +20,33 @@ This Terraform lab environment will deploy an Azure Virtual Network Manager (AVN
 
    ```sh
    az login
+
+3. **Update the answers.json File**
+
+    Update the answers.json file with your environment values. The file should look like this:
+
+    ```json
+    {
+      "subscriptionId": "your-subscription-id",
+      "location": "your-location",
+      "resourceGroupName": "your-resource-group-name"
+    }
+4. **Run the Deploy Script**
+
+    Run the deploy.ps1 script to deploy the lab environment:
+
+    ```
+    ./deploy.ps1
+**Clean Up the Lab**
+   
+   When you're ready to clean up the lab environment, run the destroy.ps1 script: 
+
+    ```
+   ./destroy.ps1
+
+**Notes**
+
+Ensure you have the necessary permissions to create and manage resources in your Azure subscription.
+Review the Terraform configurations and scripts to understand the resources being deployed and managed.
+
+Happy deploying!
