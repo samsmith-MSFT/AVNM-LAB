@@ -20,6 +20,11 @@ This Terraform lab environment will deploy an Azure Virtual Network Manager (AVN
 
    ```sh
    az login
+   ```
+   If you have issues signing in, try using:
+   ```sh
+   az login --use-device-code
+   ```
 
 3. **Update the answers.json File**
 
