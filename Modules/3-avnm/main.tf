@@ -90,7 +90,7 @@ resource "azurerm_network_manager_admin_rule" "admin-rule-2" {
   admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.ssecurity-rule-collection.id
   action                   = "Deny"
   direction                = "Inbound"
-  priority                 = 1
+  priority                 = 2
   protocol                 = "Tcp"
   source_port_ranges       = ["*"]
   destination_port_ranges  = ["22"]
