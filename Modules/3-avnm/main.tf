@@ -17,6 +17,13 @@ data "azurerm_virtual_network" "hub-vnet" {
   name                = var.vnet_name_hub
   resource_group_name = var.resource_group_name
 }
+
+data "azurerm_virtual_network" "spoke_vnets" {
+  for_each = toset(var.vnet_name_spokes)
+  name                = each.value
+  resource_group_name = data.azurerm_resource_group.rg.name
+}
+
 data "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
 }
@@ -35,6 +42,12 @@ resource "azurerm_network_manager" "avnm" {
 resource "azurerm_network_manager_network_group" "ng" {
   network_manager_id   = azurerm_network_manager.avnm.id
   name                 = "hub-spoke"
+}
+
+resource "azurerm_network_manager_static_member" "members" {
+  name                      = "members"
+  network_group_id          = azurerm_network_manager_network_group.ng.id
+  target_virtual_network_id = data.azurerm_virtual_network.spoke_vnets[each.key].id
 }
 
 resource "azurerm_network_manager_connectivity_configuration" "connectivity-config" {
@@ -72,7 +85,7 @@ resource "azurerm_network_manager_admin_rule" "admin-rule-1" {
   direction                = "Outbound"
   priority                 = 1
   protocol                 = "Tcp"
-  source_port_ranges       = ["*"]
+  source_port_ranges       = ["0-65535"]
   destination_port_ranges  = ["80", "443"]
   source {
     address_prefix_type = "ServiceTag"
@@ -90,9 +103,9 @@ resource "azurerm_network_manager_admin_rule" "admin-rule-2" {
   admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.security-rule-collection.id
   action                   = "Deny"
   direction                = "Inbound"
-  priority                 = 2
+  priority                 = 1
   protocol                 = "Tcp"
-  source_port_ranges       = ["*"]
+  source_port_ranges       = ["0-65535"]
   destination_port_ranges  = ["22"]
   source {
     address_prefix_type = "ServiceTag"
