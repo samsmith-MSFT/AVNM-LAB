@@ -51,3 +51,11 @@ resource "azurerm_network_manager_connectivity_configuration" "connectivity-conf
     resource_type = "Microsoft.Network/virtualNetworks"
   }
 }
+
+resource "azurerm_network_manager_verifier_workspace" "verifier-workspace" {
+  name               = "verifier-workspace-example"
+  network_manager_id = azurerm_network_manager.avnm.id
+  location           = data.azurerm_resource_group.rg.location
+  description        = "This is an example verifier workspace"
+  }
+}
