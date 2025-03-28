@@ -105,6 +105,20 @@ resource "azurerm_network_manager_admin_rule" "admin-rule-2" {
   description = "Blocks SSH to 10.3.0.4"
 }
 
+resource "azurerm_network_manager_deployment" "connectivity-deployment" {
+  network_manager_id = azurerm_network_manager.avnm.id
+  location           = "eastus2"
+  scope_access       = "Connectivity"
+  configuration_ids  = [azurerm_network_manager_connectivity_configuration.connectivity-config.id]
+}
+
+resource "azurerm_network_manager_deployment" "Security-deployment" {
+  network_manager_id = azurerm_network_manager.avnm.id
+  location           = "eastus2"
+  scope_access       = "SecurityAdmin"
+  configuration_ids  = [azurerm_network_manager_security_admin_configuration.security-config.id]
+}
+
 resource "azurerm_network_manager_verifier_workspace" "verifier-workspace" {
   name               = "verifier-workspace-example"
   network_manager_id = azurerm_network_manager.avnm.id
