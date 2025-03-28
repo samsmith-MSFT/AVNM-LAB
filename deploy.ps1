@@ -1,3 +1,6 @@
+# Change to the modules directory
+$null = cd /workspaces/AVNM-LAB
+
 # Read the answers.json file
 $answers = Get-Content -Raw -Path "answers.json" | ConvertFrom-Json
 
