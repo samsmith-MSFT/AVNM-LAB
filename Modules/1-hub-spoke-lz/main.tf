@@ -47,6 +47,22 @@ resource "azurerm_subnet" "spoke_subnets" {
   depends_on           = [azurerm_virtual_network.spoke_vnets]
 }
 
+resource "azurerm_network_security_group" "spoke_nsgs" {
+  for_each             = toset(var.vnet_name_spokes)
+  name                 = "${each.key}-nsg"
+  location             = var.location
+  resource_group_name  = azurerm_resource_group.rg.name
+  tags = {
+    environment = "spoke"
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "spoke_nsg_association" {
+  for_each             = toset(var.vnet_name_spokes)
+  subnet_id            = azurerm_subnet.spoke_subnets[each.key].id
+  network_security_group_id = azurerm_network_security_group.spoke_nsgs[each.key].id
+}
+
 resource "azurerm_subnet" "hub_fw_subnet" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = azurerm_resource_group.rg.name
