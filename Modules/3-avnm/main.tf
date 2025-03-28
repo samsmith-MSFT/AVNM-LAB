@@ -66,71 +66,11 @@ resource "azurerm_network_manager_connectivity_configuration" "connectivity-conf
   }
 }
 
-resource "azurerm_network_manager_security_admin_configuration" "security-config" {
-  name                                          = "security-conf"
-  network_manager_id                            = azurerm_network_manager.avnm.id
-  description                                   = "example security conf"
-  apply_on_network_intent_policy_based_services = ["None"]
-}
-
-resource "azurerm_network_manager_admin_rule_collection" "security-rule-collection" {
-  name                            = "security-rule-collection"
-  security_admin_configuration_id = azurerm_network_manager_security_admin_configuration.security-config.id
-  network_group_ids               = [azurerm_network_manager_network_group.ng.id]
-}
-
-resource "azurerm_network_manager_admin_rule" "admin-rule-1" {
-  name                     = "admin-rule-1"
-  admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.security-rule-collection.id
-  action                   = "Deny"
-  direction                = "Outbound"
-  priority                 = 1
-  protocol                 = "Tcp"
-  source_port_ranges       = ["0-65535"]
-  destination_port_ranges  = ["80", "443"]
-  source {
-    address_prefix_type = "ServiceTag"
-    address_prefix      = "VirtualNetwork"
-  }
-  destination {
-    address_prefix_type = "ServiceTag"
-    address_prefix      = "Internet"
-  }
-  description = "Blocks all HTTP traffic to Internet"
-}
-
-resource "azurerm_network_manager_admin_rule" "admin-rule-2" {
-  name                     = "admin-rule-2"
-  admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.security-rule-collection.id
-  action                   = "Deny"
-  direction                = "Inbound"
-  priority                 = 2
-  protocol                 = "Tcp"
-  source_port_ranges       = ["0-65535"]
-  destination_port_ranges  = ["22"]
-  source {
-    address_prefix_type = "ServiceTag"
-    address_prefix      = "VirtualNetwork"
-  }
-  destination {
-    address_prefix_type = "IPPrefix"
-    address_prefix      = "10.3.0.4"
-  }
-  description = "Blocks SSH to 10.3.0.4"
-}
-
 resource "azurerm_network_manager_deployment" "connectivity-deployment" {
   network_manager_id = azurerm_network_manager.avnm.id
   location           = "eastus2"
   scope_access       = "Connectivity"
   configuration_ids  = [azurerm_network_manager_connectivity_configuration.connectivity-config.id]
-}
-
-resource "azurerm_network_manager_deployment" "Security-deployment" {
-  network_manager_id = azurerm_network_manager.avnm.id
-  location           = "eastus2"
-  scope_access       = "SecurityAdmin"
-  configuration_ids  = [azurerm_network_manager_security_admin_configuration.security-config.id]
 }
 
 resource "azurerm_network_manager_verifier_workspace" "verifier-workspace" {
