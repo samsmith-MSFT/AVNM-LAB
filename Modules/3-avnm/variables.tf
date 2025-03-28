@@ -23,3 +23,8 @@ variable "vnet_name_hub" {
   description = "Name of the virtual network"
   type        = string
 }
+
+variable "vnet_name_spokes" {
+  description = "Name of the virtual network"
+  type        = list(string)
+}
