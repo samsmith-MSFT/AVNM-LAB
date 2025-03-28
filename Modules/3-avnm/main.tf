@@ -45,6 +45,7 @@ resource "azurerm_network_manager_network_group" "ng" {
 }
 
 resource "azurerm_network_manager_static_member" "members" {
+  for_each = toset(var.vnet_name_spokes)
   name                      = "members"
   network_group_id          = azurerm_network_manager_network_group.ng.id
   target_virtual_network_id = data.azurerm_virtual_network.spoke_vnets[each.key].id
