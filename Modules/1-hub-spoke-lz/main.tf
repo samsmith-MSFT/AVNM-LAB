@@ -76,6 +76,13 @@ resource "azurerm_firewall_policy_rule_collection_group" "rcg" {
       destination_addresses = ["10.0.0.0/8"]
       destination_ports     = ["*"]
     }
+    rule {
+      name                  = "network_rule_collection1_rule2"
+      protocols             = ["TCP", "UDP", "ICMP"]
+      source_addresses      = ["10.0.0.0/8"]
+      destination_addresses = ["0.0.0.0/0"]
+      destination_ports     = ["*"]
+    }
   }
 }
 
