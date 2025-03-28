@@ -87,7 +87,7 @@ resource "azurerm_network_manager_admin_rule" "admin-rule-1" {
 
 resource "azurerm_network_manager_admin_rule" "admin-rule-2" {
   name                     = "admin-rule-2"
-  admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.ssecurity-rule-collection.id
+  admin_rule_collection_id = azurerm_network_manager_admin_rule_collection.security-rule-collection.id
   action                   = "Deny"
   direction                = "Inbound"
   priority                 = 2
