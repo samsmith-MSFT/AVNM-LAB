@@ -53,3 +53,11 @@ output "verifier_workspace_id" {
   description = "ID of the verifier workspace"
   value       = azurerm_network_manager_verifier_workspace.verifier_workspace.id
 }
+
+output "ipam_pool_associations" {
+  description = "IDs of the IPAM pool VNet associations"
+  value = {
+    hub = azurerm_network_manager_ipam_pool_vnet_association.hub_pool_association.id
+    spokes = { for k, v in azurerm_network_manager_ipam_pool_vnet_association.spoke_pool_associations : k => v.id }
+  }
+}
