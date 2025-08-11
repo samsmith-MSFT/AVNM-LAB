@@ -100,17 +100,20 @@ terraform output spoke_subnet_allocated_prefixes
 The lab uses Azure Virtual Network Manager's IPAM capabilities:
 
 - **Pool Range**: `10.0.0.0/14` (262,144 total IP addresses)
+- **VNet Allocation**: 256 IPs per spoke VNet (effectively `/24` VNets)
 - **Subnet Allocation**: 32 IPs per spoke subnet (effectively `/27` subnets)
 - **Automatic Assignment**: No manual IP planning required
 - **Conflict Prevention**: AVNM ensures no overlapping ranges
 
 ### **Network Topology**
-- **Hub VNet**: `10.1.0.0/16`
+- **Hub VNet**: `10.1.0.0/16` (static addressing)
   - Azure Firewall Subnet: `10.1.1.0/24`
 - **Spoke VNets**: Dynamically allocated from IPAM pool
-  - Spoke 1: Automatically assigned `/27` subnet
-  - Spoke 2: Automatically assigned `/27` subnet  
-  - Spoke 3: Automatically assigned `/27` subnet
+  - Spoke 1: Automatically assigned `/24` VNet
+  - Spoke 2: Automatically assigned `/24` VNet  
+  - Spoke 3: Automatically assigned `/24` VNet
+- **Spoke Subnets**: Dynamically allocated within their VNets
+  - Each subnet gets automatically assigned `/27` subnet
 
 ### **Security & Routing**
 - **Network Security Groups**: Applied to all spoke subnets
@@ -121,6 +124,10 @@ The lab uses Azure Virtual Network Manager's IPAM capabilities:
 
 ### **View Allocated IP Ranges**
 ```bash
+# View VNet allocations
+terraform output spoke_vnet_allocated_prefixes
+
+# View subnet allocations
 terraform output spoke_subnet_allocated_prefixes
 ```
 
@@ -170,22 +177,16 @@ vnet_name_spokes = [
   "vnet-avnm-spoke3",
   "vnet-avnm-spoke4"  # Add new spoke
 ]
-
-address_space_spokes = {
-  "vnet-avnm-spoke1" = ["10.1.2.0/24"],
-  "vnet-avnm-spoke2" = ["10.1.3.0/24"],
-  "vnet-avnm-spoke3" = ["10.1.4.0/24"],
-  "vnet-avnm-spoke4" = ["10.1.5.0/24"]  # Add new spoke
-}
 ```
 
-The IPAM pool will automatically allocate subnet ranges for new spokes.
+The IPAM pool will automatically allocate VNet and subnet ranges for new spokes.
 
 ### **Customizing IP Allocation**
-Modify subnet IP count in `terraform.tfvars`:
+Modify IP allocation in `terraform.tfvars`:
 
 ```hcl
-subnet_ip_count = "64"  # Allocates /26 subnets instead of /27
+vnet_ip_count = "512"    # Allocates /23 VNets instead of /24
+subnet_ip_count = "64"   # Allocates /26 subnets instead of /27
 ```
 
 ## 📚 **Learning Objectives**

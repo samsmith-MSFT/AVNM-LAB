@@ -29,11 +29,6 @@ variable "vnet_name_spokes" {
   type        = list(string)
 }
 
-variable "address_space_spokes" {
-  description = "Address space of the virtual network"
-  type        = map(list(string))
-}
-
 variable "subscription_id" {
   description = "Subscription ID"
   type        = string
@@ -55,4 +50,10 @@ variable "subnet_ip_count" {
   description = "Number of IP addresses to allocate per spoke subnet"
   type        = string
   default     = "32"
+}
+
+variable "vnet_ip_count" {
+  description = "Number of IP addresses to allocate per spoke VNet"
+  type        = string
+  default     = "256"
 }

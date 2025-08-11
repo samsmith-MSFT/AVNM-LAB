@@ -13,6 +13,11 @@ output "spoke_vnet_ids" {
   value       = { for k, v in azurerm_virtual_network.spoke_vnets : k => v.id }
 }
 
+output "spoke_vnet_allocated_prefixes" {
+  description = "Allocated IP address prefixes for spoke VNets"
+  value       = { for k, v in azurerm_virtual_network.spoke_vnets : k => v.ip_address_pool[0].allocated_ip_address_prefixes }
+}
+
 output "network_manager_id" {
   description = "ID of the Azure Virtual Network Manager"
   value       = azurerm_network_manager.avnm.id

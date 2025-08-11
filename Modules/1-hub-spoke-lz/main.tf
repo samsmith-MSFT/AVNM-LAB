@@ -106,10 +106,18 @@ resource "azurerm_virtual_network" "spoke_vnets" {
   name                 = each.value
   location             = var.location
   resource_group_name  = azurerm_resource_group.rg.name
-  address_space        = var.address_space_spokes[each.key]
+  
+  # Use IPAM pool allocation instead of static address space
+  ip_address_pool {
+    id                      = azurerm_network_manager_ipam_pool.main_pool.id
+    number_of_ip_addresses  = var.vnet_ip_count
+  }
+  
   tags = {
     environment = "spoke"
   }
+  
+  depends_on = [azurerm_network_manager_ipam_pool.main_pool]
 }
 
 resource "azurerm_subnet" "spoke_subnets" {
