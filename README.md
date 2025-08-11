@@ -97,17 +97,19 @@ terraform output spoke_subnet_allocated_prefixes
 ## 🔧 **Configuration Details**
 
 ### **IPAM Pool Configuration**
-The lab uses Azure Virtual Network Manager's IPAM capabilities:
+The lab uses Azure Virtual Network Manager's IPAM capabilities for **complete dynamic allocation**:
 
 - **Pool Range**: `10.0.0.0/14` (262,144 total IP addresses)
-- **VNet Allocation**: 256 IPs per spoke VNet (effectively `/24` VNets)
-- **Subnet Allocation**: 32 IPs per spoke subnet (effectively `/27` subnets)
+- **Hub VNet Allocation**: 65,536 IPs (effectively `/16` VNet)
+- **Spoke VNet Allocation**: 256 IPs per spoke VNet (effectively `/24` VNets)
+- **Firewall Subnet Allocation**: 256 IPs (effectively `/24` subnet)
+- **Spoke Subnet Allocation**: 32 IPs per spoke subnet (effectively `/27` subnets)
 - **Automatic Assignment**: No manual IP planning required
 - **Conflict Prevention**: AVNM ensures no overlapping ranges
 
 ### **Network Topology**
-- **Hub VNet**: `10.1.0.0/16` (static addressing)
-  - Azure Firewall Subnet: `10.1.1.0/24`
+- **Hub VNet**: Dynamically allocated from IPAM pool (gets `/16` range)
+  - Azure Firewall Subnet: Dynamically allocated (gets `/24` range)
 - **Spoke VNets**: Dynamically allocated from IPAM pool
   - Spoke 1: Automatically assigned `/24` VNet
   - Spoke 2: Automatically assigned `/24` VNet  
@@ -124,10 +126,16 @@ The lab uses Azure Virtual Network Manager's IPAM capabilities:
 
 ### **View Allocated IP Ranges**
 ```bash
-# View VNet allocations
+# View hub VNet allocation
+terraform output hub_vnet_allocated_prefixes
+
+# View spoke VNet allocations
 terraform output spoke_vnet_allocated_prefixes
 
-# View subnet allocations
+# View firewall subnet allocation
+terraform output firewall_subnet_allocated_prefixes
+
+# View spoke subnet allocations
 terraform output spoke_subnet_allocated_prefixes
 ```
 
@@ -185,8 +193,10 @@ The IPAM pool will automatically allocate VNet and subnet ranges for new spokes.
 Modify IP allocation in `terraform.tfvars`:
 
 ```hcl
-vnet_ip_count = "512"    # Allocates /23 VNets instead of /24
-subnet_ip_count = "64"   # Allocates /26 subnets instead of /27
+hub_vnet_ip_count = "131072"        # Allocates /15 hub VNet instead of /16
+vnet_ip_count = "512"               # Allocates /23 spoke VNets instead of /24
+firewall_subnet_ip_count = "512"    # Allocates /23 firewall subnet instead of /24
+subnet_ip_count = "64"              # Allocates /26 spoke subnets instead of /27
 ```
 
 ## 📚 **Learning Objectives**

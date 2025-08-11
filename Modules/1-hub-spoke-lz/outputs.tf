@@ -8,6 +8,11 @@ output "hub_vnet_id" {
   value       = azurerm_virtual_network.hub_vnet.id
 }
 
+output "hub_vnet_allocated_prefixes" {
+  description = "Allocated IP address prefixes for hub VNet"
+  value       = azurerm_virtual_network.hub_vnet.ip_address_pool[0].allocated_ip_address_prefixes
+}
+
 output "spoke_vnet_ids" {
   description = "IDs of the spoke virtual networks"
   value       = { for k, v in azurerm_virtual_network.spoke_vnets : k => v.id }
@@ -36,6 +41,11 @@ output "spoke_subnet_ids" {
 output "spoke_subnet_allocated_prefixes" {
   description = "Allocated IP address prefixes for spoke subnets"
   value       = { for k, v in azurerm_subnet.spoke_subnets : k => v.ip_address_pool[0].allocated_ip_address_prefixes }
+}
+
+output "firewall_subnet_allocated_prefixes" {
+  description = "Allocated IP address prefixes for firewall subnet"
+  value       = azurerm_subnet.hub_fw_subnet.ip_address_pool[0].allocated_ip_address_prefixes
 }
 
 # AVNM Configuration Outputs

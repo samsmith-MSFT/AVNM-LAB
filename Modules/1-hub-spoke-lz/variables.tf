@@ -14,14 +14,10 @@ variable "vnet_name_hub" {
   type        = string
 }
 
-variable "address_space_hub" {
-  description = "Address space of the virtual network"
-  type        = list(string)
-}
-
-variable "subnet_space_fw" {
-  description = "Subnet space of the virtual network"
-  type        = list(string)
+variable "firewall_subnet_ip_count" {
+  description = "Number of IP addresses to allocate for firewall subnet"
+  type        = string
+  default     = "256"
 }
 
 variable "vnet_name_spokes" {
@@ -56,4 +52,10 @@ variable "vnet_ip_count" {
   description = "Number of IP addresses to allocate per spoke VNet"
   type        = string
   default     = "256"
+}
+
+variable "hub_vnet_ip_count" {
+  description = "Number of IP addresses to allocate for hub VNet"
+  type        = string
+  default     = "65536"
 }

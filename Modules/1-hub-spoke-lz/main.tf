@@ -95,10 +95,18 @@ resource "azurerm_virtual_network" "hub_vnet" {
   name                = var.vnet_name_hub
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
-  address_space       = var.address_space_hub
+  
+  # Use IPAM pool allocation instead of static address space
+  ip_address_pool {
+    id                      = azurerm_network_manager_ipam_pool.main_pool.id
+    number_of_ip_addresses  = var.hub_vnet_ip_count
+  }
+  
   tags = {
     environment = "hub"
   }
+  
+  depends_on = [azurerm_network_manager_ipam_pool.main_pool]
 }
 
 resource "azurerm_virtual_network" "spoke_vnets" {
@@ -155,8 +163,14 @@ resource "azurerm_subnet" "hub_fw_subnet" {
   name                 = "AzureFirewallSubnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.hub_vnet.name
-  address_prefixes     = var.subnet_space_fw
-  depends_on           = [azurerm_virtual_network.hub_vnet]
+  
+  # Use IP address pool allocation for firewall subnet
+  ip_address_pool {
+    id                      = azurerm_network_manager_ipam_pool.main_pool.id
+    number_of_ip_addresses  = var.firewall_subnet_ip_count
+  }
+  
+  depends_on = [azurerm_virtual_network.hub_vnet]
 }
 
 resource "azurerm_firewall_policy" "firewall_policy" {
