@@ -75,6 +75,8 @@ Update the `answers.json` file with your Azure details:
 }
 ```
 
+> **⚠️ Important**: After updating the `answers.json` file, make sure to **save the file** by pressing `Ctrl+S` (Windows/Linux) or `Cmd+S` (Mac) before proceeding to the next step. The deployment scripts rely on the saved values in this file.
+
 ### **4. Deploy Infrastructure**
 Run the automated deployment script:
 
