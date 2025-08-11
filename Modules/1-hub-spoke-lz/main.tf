@@ -112,21 +112,6 @@ resource "azurerm_virtual_network" "spoke_vnets" {
   }
 }
 
-# Associate hub VNet with the IPAM pool
-resource "azurerm_network_manager_ipam_pool_vnet_association" "hub_pool_association" {
-  pool_id            = azurerm_network_manager_ipam_pool.main_pool.id
-  virtual_network_id = azurerm_virtual_network.hub_vnet.id
-  depends_on         = [azurerm_virtual_network.hub_vnet, azurerm_network_manager_ipam_pool.main_pool]
-}
-
-# Associate spoke VNets with the IPAM pool
-resource "azurerm_network_manager_ipam_pool_vnet_association" "spoke_pool_associations" {
-  for_each      = toset(var.vnet_name_spokes)
-  pool_id       = azurerm_network_manager_ipam_pool.main_pool.id
-  virtual_network_id = azurerm_virtual_network.spoke_vnets[each.key].id
-  depends_on    = [azurerm_virtual_network.spoke_vnets, azurerm_network_manager_ipam_pool.main_pool]
-}
-
 resource "azurerm_subnet" "spoke_subnets" {
   for_each             = toset(var.vnet_name_spokes)
   name                 = "${each.key}-subnet"
@@ -139,7 +124,7 @@ resource "azurerm_subnet" "spoke_subnets" {
     number_of_ip_addresses  = var.subnet_ip_count
   }
   
-  depends_on = [azurerm_network_manager_ipam_pool_vnet_association.spoke_pool_associations]
+  depends_on = [azurerm_virtual_network.spoke_vnets, azurerm_network_manager_ipam_pool.main_pool]
 }
 
 resource "azurerm_network_security_group" "spoke_nsgs" {
@@ -163,7 +148,7 @@ resource "azurerm_subnet" "hub_fw_subnet" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.hub_vnet.name
   address_prefixes     = var.subnet_space_fw
-  depends_on           = [azurerm_network_manager_ipam_pool_vnet_association.hub_pool_association]
+  depends_on           = [azurerm_virtual_network.hub_vnet]
 }
 
 resource "azurerm_firewall_policy" "firewall_policy" {
