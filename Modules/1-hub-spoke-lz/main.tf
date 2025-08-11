@@ -34,7 +34,7 @@ resource "azurerm_network_manager_ipam_pool" "main_pool" {
   name               = "main-ipam-pool"
   location           = var.location
   network_manager_id = azurerm_network_manager.avnm.id
-  display_name       = "Main IP Address Pool"
+  display_name       = "Main-IP-Address-Pool"
   address_prefixes   = [var.ipam_pool_address_prefix]
   description        = "Main IP address pool for spoke subnet allocation"
 }
