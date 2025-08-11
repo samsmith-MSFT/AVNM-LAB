@@ -17,6 +17,80 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
+# Azure Virtual Network Manager for IP Address Management
+resource "azurerm_network_manager" "avnm" {
+  name                = var.avnm_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  scope {
+    subscription_ids = ["/subscriptions/${var.subscription_id}"]
+  }
+  scope_accesses = ["Connectivity", "SecurityAdmin"]
+  description    = "Network manager for hub-spoke topology with IPAM"
+}
+
+# IPAM Pool for subnet address allocation
+resource "azurerm_network_manager_ipam_pool" "main_pool" {
+  name               = "main-ipam-pool"
+  location           = var.location
+  network_manager_id = azurerm_network_manager.avnm.id
+  display_name       = "Main IP Address Pool"
+  address_prefixes   = [var.ipam_pool_address_prefix]
+  description        = "Main IP address pool for spoke subnet allocation"
+}
+
+# Network Group for organizing spoke VNets
+resource "azurerm_network_manager_network_group" "spoke_group" {
+  network_manager_id = azurerm_network_manager.avnm.id
+  name               = "hub-spoke-group"
+  description        = "Network group containing all spoke virtual networks"
+}
+
+# Add spoke VNets to the network group
+resource "azurerm_network_manager_static_member" "spoke_members" {
+  for_each                  = toset(var.vnet_name_spokes)
+  name                      = "${each.key}-member"
+  network_group_id          = azurerm_network_manager_network_group.spoke_group.id
+  target_virtual_network_id = azurerm_virtual_network.spoke_vnets[each.key].id
+}
+
+# Connectivity configuration for hub-spoke topology
+resource "azurerm_network_manager_connectivity_configuration" "hub_spoke_config" {
+  name                  = "hub-spoke-connectivity"
+  network_manager_id    = azurerm_network_manager.avnm.id
+  connectivity_topology = "HubAndSpoke"
+  description           = "Hub and spoke connectivity configuration"
+  
+  applies_to_group {
+    group_connectivity = "None"
+    network_group_id   = azurerm_network_manager_network_group.spoke_group.id
+  }
+
+  hub {
+    resource_id   = azurerm_virtual_network.hub_vnet.id
+    resource_type = "Microsoft.Network/virtualNetworks"
+  }
+}
+
+# Deploy the connectivity configuration
+resource "azurerm_network_manager_deployment" "connectivity_deployment" {
+  network_manager_id = azurerm_network_manager.avnm.id
+  location           = var.location
+  scope_access       = "Connectivity"
+  configuration_ids  = [azurerm_network_manager_connectivity_configuration.hub_spoke_config.id]
+  triggers = {
+    connectivity_config_id = azurerm_network_manager_connectivity_configuration.hub_spoke_config.id
+  }
+}
+
+# Optional: Verifier workspace for network verification
+resource "azurerm_network_manager_verifier_workspace" "verifier_workspace" {
+  name               = "hub-spoke-verifier"
+  network_manager_id = azurerm_network_manager.avnm.id
+  location           = var.location
+  description        = "Verifier workspace for hub-spoke network topology"
+}
+
 resource "azurerm_virtual_network" "hub_vnet" {
   name                = var.vnet_name_hub
   location            = var.location
@@ -43,8 +117,14 @@ resource "azurerm_subnet" "spoke_subnets" {
   name                 = "${each.key}-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.spoke_vnets[each.key].name
-  address_prefixes     = var.subnet_space_spokes[each.key]
-  depends_on           = [azurerm_virtual_network.spoke_vnets]
+  
+  # Use IP address pool allocation instead of static prefixes
+  ip_address_pool {
+    id                      = azurerm_network_manager_ipam_pool.main_pool.id
+    number_of_ip_addresses  = var.subnet_ip_count
+  }
+  
+  depends_on = [azurerm_virtual_network.spoke_vnets, azurerm_network_manager_ipam_pool.main_pool]
 }
 
 resource "azurerm_network_security_group" "spoke_nsgs" {
