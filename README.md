@@ -26,7 +26,7 @@ This lab deploys a simplified **2-module architecture** that creates a complete 
 ### **🎯 Key Features**
 
 - ✅ **Hub-Spoke Topology** with Azure Virtual Network Manager
-- ✅ **Dynamic IP Allocation** from centralized IPAM pool (`10.1.0.0/14`)
+- ✅ **Dynamic IP Allocation** from centralized IPAM pool (`10.0.0.0/14`)
 - ✅ **Automatic Subnet Management** - no manual IP planning required
 - ✅ **Azure Firewall** with routing and security rules
 - ✅ **Network Security Groups** and route tables
@@ -99,7 +99,7 @@ terraform output spoke_subnet_allocated_prefixes
 ### **IPAM Pool Configuration**
 The lab uses Azure Virtual Network Manager's IPAM capabilities:
 
-- **Pool Range**: `10.1.0.0/14` (262,144 total IP addresses)
+- **Pool Range**: `10.0.0.0/14` (262,144 total IP addresses)
 - **Subnet Allocation**: 32 IPs per spoke subnet (effectively `/27` subnets)
 - **Automatic Assignment**: No manual IP planning required
 - **Conflict Prevention**: AVNM ensures no overlapping ranges

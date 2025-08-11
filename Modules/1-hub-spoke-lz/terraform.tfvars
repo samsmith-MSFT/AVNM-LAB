@@ -10,14 +10,8 @@ address_space_spokes    = {
   "vnet-avnm-spoke2" = ["10.1.3.0/24"],
   "vnet-avnm-spoke3" = ["10.1.4.0/24"]
 }
-# subnet_space_spokes is no longer needed as we're using IP address pool allocation
-# subnet_space_spokes     = {
-#   "vnet-avnm-spoke1" = ["10.1.2.0/27"],
-#   "vnet-avnm-spoke2" = ["10.1.3.0/27"],
-#   "vnet-avnm-spoke3" = ["10.1.4.0/27"]
-# }
 
 # AVNM and IPAM Pool Configuration
 avnm_name = "avnm-hub-spoke"
-ipam_pool_address_prefix = "10.1.0.0/14"
+ipam_pool_address_prefix = "10.0.0.0/14"
 subnet_ip_count = "32"  # This will allocate /27 subnets (32 IPs)

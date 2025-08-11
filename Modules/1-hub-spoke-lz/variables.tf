@@ -48,7 +48,7 @@ variable "avnm_name" {
 variable "ipam_pool_address_prefix" {
   description = "Address prefix for the IPAM pool"
   type        = string
-  default     = "10.1.0.0/14"
+  default     = "10.0.0.0/14"
 }
 
 variable "subnet_ip_count" {
