@@ -17,7 +17,7 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
-# Azure Virtual Network Manager for IP Address Management
+# Azure Virtual Network Manager with IPAM capabilities
 resource "azurerm_network_manager" "avnm" {
   name                = var.avnm_name
   resource_group_name = azurerm_resource_group.rg.name
@@ -29,7 +29,7 @@ resource "azurerm_network_manager" "avnm" {
   description    = "Network manager for hub-spoke topology with IPAM"
 }
 
-# IPAM Pool for subnet address allocation
+# IPAM pool for dynamic subnet allocation
 resource "azurerm_network_manager_ipam_pool" "main_pool" {
   name               = "main-ipam-pool"
   location           = var.location
