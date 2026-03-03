@@ -1,7 +1,8 @@
 # AVNM Lab Deployment Script
-# Simplified 2-module architecture:
+# 3-module architecture:
 # 1. hub-spoke-lz: Complete networking infrastructure + AVNM + IPAM
 # 2. compute: Virtual machines and compute resources
+# 3. avnm: Security Admin Rules + UDR (Routing) Management
 
 # Change to the modules directory
 $null = cd /workspaces/AVNM-LAB
@@ -17,8 +18,8 @@ $resourceGroupName = $answers.resourceGroupName
 # Find all terraform.tfvars files in the module directories
 $tfvarsFiles = Get-ChildItem -Recurse -Filter "terraform.tfvars" | Sort-Object DirectoryName
 
-# Define the order of directories (simplified to 2 modules)
-$order = @("1-hub-spoke-lz", "2-compute")
+# Define the order of directories (3 modules)
+$order = @("1-hub-spoke-lz", "2-compute", "3-avnm")
 
 foreach ($dir in $order) {
     $tfvarsFile = $tfvarsFiles | Where-Object { $_.DirectoryName -like "*$dir*" }

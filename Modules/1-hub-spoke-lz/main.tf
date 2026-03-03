@@ -25,7 +25,7 @@ resource "azurerm_network_manager" "avnm" {
   scope {
     subscription_ids = ["/subscriptions/${var.subscription_id}"]
   }
-  scope_accesses = ["Connectivity", "SecurityAdmin"]
+  scope_accesses = ["Connectivity", "SecurityAdmin", "Routing"]
   description    = "Network manager for hub-spoke topology with IPAM"
 }
 

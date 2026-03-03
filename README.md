@@ -4,11 +4,11 @@
 [![Azure](https://img.shields.io/badge/Azure-Cloud-blue.svg)](https://azure.microsoft.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A comprehensive Terraform lab environment that demonstrates **Azure Virtual Network Manager (AVNM)** with advanced **IP Address Management (IPAM)** capabilities. This lab showcases modern cloud networking patterns including hub-spoke topology, dynamic subnet allocation, and centralized network management.
+A comprehensive Terraform lab environment that demonstrates **Azure Virtual Network Manager (AVNM)** with advanced **IP Address Management (IPAM)**, **Security Admin Rules**, and **UDR (Routing) Management** capabilities. This lab showcases modern cloud networking patterns including hub-spoke topology, dynamic subnet allocation, centrally enforced security policies, and AVNM-managed routing.
 
 ## 🏗️ **Architecture Overview**
 
-This lab deploys a simplified **2-module architecture** that creates a complete hub-spoke network topology with automatic IP address management:
+This lab deploys a **3-module architecture** that creates a complete hub-spoke network topology with automatic IP address management, centrally enforced security admin rules, and AVNM-managed routing:
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -32,14 +32,17 @@ This lab deploys a simplified **2-module architecture** that creates a complete 
 - ✅ **Network Security Groups** and route tables
 - ✅ **Conflict Prevention** through AVNM IPAM
 - ✅ **Scalable Design** - easily add more spokes
+- ✅ **Security Admin Rules** - centrally enforced security policies that override NSGs
+- ✅ **UDR Management** - AVNM-managed routing configuration pushed to spoke VNets
 - ✅ **Infrastructure as Code** with Terraform
 
 ## 📦 **Module Structure**
 
 | Module | Purpose | Resources |
-|--------|---------|-----------|
-| **`1-hub-spoke-lz`** | Complete networking foundation | • Resource Group<br>• Hub & Spoke VNets<br>• **Azure Virtual Network Manager**<br>• **IPAM Pool (10.1.0.0/14)**<br>• Dynamic Subnet Allocation<br>• Azure Firewall<br>• Network Security Groups<br>• Route Tables<br>• Network Connectivity Configuration |
+|--------|---------|----------|
+| **`1-hub-spoke-lz`** | Complete networking foundation | • Resource Group<br>• Hub & Spoke VNets<br>• **Azure Virtual Network Manager**<br>• **IPAM Pool (10.0.0.0/14)**<br>• Dynamic Subnet Allocation<br>• Azure Firewall<br>• Network Security Groups<br>• Route Tables<br>• Network Connectivity Configuration |
 | **`2-compute`** | Virtual machines and compute | • Virtual Machines<br>• Network Interfaces<br>• Public IPs<br>• Compute-related resources |
+| **`3-avnm`** | Security & routing policies | • **Security Admin Configuration**<br>• **Admin Rule Collections & Rules** (ICMP allow, SSH/RDP deny, high-risk port deny, internal allow)<br>• **Routing Configuration** (UDR Management)<br>• **Routing Rule Collections & Rules** (internet via firewall, spoke-to-spoke via firewall)<br>• SecurityAdmin & Routing Deployments |
 
 ## 🚀 **Quick Start**
 
@@ -87,6 +90,7 @@ Run the automated deployment script:
 **Deployment Process:**
 1. **Module 1**: Deploys complete networking + AVNM + IPAM (5-10 minutes)
 2. **Module 2**: Deploys virtual machines and compute resources (3-5 minutes)
+3. **Module 3**: Deploys Security Admin Rules + Routing Configuration (2-3 minutes)
 
 ### **5. Verify Deployment**
 Check the allocated IP address ranges:
@@ -121,7 +125,16 @@ The lab uses Azure Virtual Network Manager's IPAM capabilities for **complete dy
 
 ### **Security & Routing**
 - **Network Security Groups**: Applied to all spoke subnets
-- **Route Tables**: Force all traffic through Azure Firewall
+- **Security Admin Rules** (AVNM-enforced, cannot be overridden by NSGs):
+  - **AlwaysAllow ICMP**: Ensures diagnostics always work
+  - **Deny SSH from Internet**: Blocks port 22 from internet
+  - **Deny RDP from Internet**: Blocks port 3389 from internet
+  - **Deny High-Risk Outbound**: Blocks Telnet (23) and FTP (20, 21) outbound
+  - **Allow Internal Traffic**: Permits RFC1918 (10.0.0.0/8) inbound
+- **AVNM UDR Management** (centrally managed routing):
+  - **Internet via Firewall**: Routes 0.0.0.0/0 through Azure Firewall
+  - **Private via Firewall**: Routes 10.0.0.0/8 through Azure Firewall for inspection
+- **Route Tables**: Force all traffic through Azure Firewall (legacy, complemented by AVNM routing)
 - **Firewall Rules**: Allow inter-spoke communication and internet access
 
 ## 🔍 **Monitoring & Verification**
@@ -147,11 +160,22 @@ terraform output network_manager_id
 terraform output connectivity_configuration_id
 ```
 
+### **Check Security Admin & Routing (Module 3)**
+```bash
+cd Modules/3-avnm
+terraform output security_admin_configuration_id
+terraform output routing_configuration_id
+terraform output security_rules
+terraform output routing_rules
+```
+
 ### **Azure Portal Verification**
 1. Navigate to **Network Manager** in Azure Portal
 2. Check **IP Address Management** → **IP Address Pools**
 3. View **Configurations** → **Connectivity configurations**
-4. Monitor **Deployments** status
+4. View **Configurations** → **Security admin configurations** → see enforced rules
+5. View **Configurations** → **Routing configurations** → see UDR rules
+6. Monitor **Deployments** status (Connectivity, SecurityAdmin, Routing)
 
 ## 🧹 **Cleanup**
 
