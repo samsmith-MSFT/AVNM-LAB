@@ -1,80 +1,70 @@
 # Azure Virtual Network Manager Lab
 
 This lab deploys an Azure Virtual Network Manager (AVNM) hub-and-spoke environment using
-**Azure Developer CLI (azd)** with Bicep. It uses GitHub Codespaces so all dependencies are
-included — no local installs required.
+the Azure Developer CLI (azd) with Bicep. It is designed to run in GitHub Codespaces, which
+provides a pre-configured environment with all required dependencies.
 
-## What Gets Deployed
+## Architecture
 
 | Resource | Details |
 |----------|---------|
 | Resource Group | `rg-<environment-name>` |
 | Hub VNet | `vnet-avnm-hub` (10.1.0.0/16) |
-| Spoke VNets | `vnet-avnm-spoke1/2/3` (10.2–4.0.0/24) |
-| Azure Firewall | `azfw-hub` (Standard) — routes all spoke traffic |
-| Route Table | `avnm-route-table` — next-hop = firewall |
-| Linux VMs | One per spoke (`Standard_B2ls_v2`, Ubuntu 22.04 LTS) |
-| Network Manager | `avnm-demo` — hub-and-spoke connectivity config |
+| Spoke VNets | `vnet-avnm-spoke1/2/3` (10.2-4.0.0/24) |
+| Azure Firewall | `azfw-hub` (Standard) - routes all spoke traffic through hub |
+| Route Table | `avnm-route-table` - default route next-hop set to firewall |
+| Linux VMs | One per spoke (Standard_B2ls_v2, Ubuntu 22.04 LTS) |
+| Network Manager | `avnm-demo` - hub-and-spoke connectivity configuration |
 
 ## Prerequisites
 
-- GitHub account (for Codespaces)
+- GitHub account with access to Codespaces
 
-## Steps to Deploy
+## Deployment
 
-1. **Open the Codespace**
+### 1. Open the Codespace
 
-   Click **Code → Codespaces → Create codespace on main**.
+Navigate to the repository on GitHub, click **Code**, select the **Codespaces** tab, and
+click **Create codespace on main**.
 
-2. **Login to Azure**
+### 2. Authenticate with Azure
 
-   ```sh
-   az login
-   azd auth login
-   ```
+```sh
+az login
+azd auth login
+```
 
-3. **Create an AZD environment and set variables**
+### 3. Configure the environment
 
-   ```sh
-   azd env new avnm-lab
-   azd env set AZURE_LOCATION eastus2
-   azd env set AZURE_VM_ADMIN_PASSWORD "AzureAdmin123!"
-   ```
+```sh
+azd env new avnm-lab
+azd env set AZURE_LOCATION eastus2
+azd env set AZURE_VM_ADMIN_PASSWORD "<your-password>"
+```
 
-   > **Tip:** Change `eastus2` to any region that supports `Standard_B2ls_v2` VMs.
+> **Note:** Verify that `Standard_B2ls_v2` is available in your chosen region before deploying.
+> East US 2 is recommended.
 
-4. **Deploy everything**
+### 4. Deploy
 
-   ```sh
-   azd up
-   ```
+```sh
+azd up
+```
 
-   Or using the provided script:
-
-   ```sh
-   ./deploy.ps1
-   ```
-
-## Clean Up
+## Cleanup
 
 ```sh
 azd down --force --purge
 ```
 
-Or:
-
-```sh
-./destroy.ps1
-```
-
-## Azure VM Login Info
+## VM Credentials
 
 | Field | Value |
 |-------|-------|
 | Username | `azureadmin` |
-| Password | value of `AZURE_VM_ADMIN_PASSWORD` (default: `AzureAdmin123!`) |
+| Password | Value of `AZURE_VM_ADMIN_PASSWORD` set during configuration |
 
-## Infrastructure Layout
+## Repository Structure
 
 ```
 infra/
@@ -82,11 +72,6 @@ infra/
 ├── main.parameters.json       # AZD parameter bindings
 └── modules/
     ├── hub-spoke-lz.bicep     # Hub VNet, firewall, route table, spoke VNets/subnets
-    ├── compute.bicep          # NICs + Linux VMs per spoke
-    └── avnm.bicep             # Network Manager + connectivity config
+    ├── compute.bicep          # Network interfaces and Linux VMs per spoke
+    └── avnm.bicep             # Network Manager and connectivity configuration
 ```
-
-> **Note:** The `Modules/` directory contains the original Terraform code and can be safely
-> deleted once you've verified the Bicep deployment.
-
-Happy deploying!

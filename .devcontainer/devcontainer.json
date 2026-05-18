@@ -1,17 +1,17 @@
 {
-  "name": "my-project-devcontainer",
-  "image": "mcr.microsoft.com/devcontainers/base:0-focal",
+  "name": "avnm-lab",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
   "features": {
     "ghcr.io/devcontainers/features/azure-cli:1": {
       "version": "latest"
     },
-    "ghcr.io/devcontainers/features/terraform:1": {
-      "version": "latest"
-    },
-    "ghcr.io/devcontainers/features/git-lfs:1": {
+    "ghcr.io/devcontainers/features/azure-developer-cli:1": {
       "version": "latest"
     },
     "ghcr.io/devcontainers/features/powershell:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/git-lfs:1": {
       "version": "latest"
     }
   }
