@@ -9,11 +9,6 @@ variable "location" {
   type        = string
 }
 
-variable "subnet_space_spokes" {
-  description = "Subnet space of the virtual network"
-  type        = map(list(string))
-}
-
 variable "vnet_name_spokes" {
   description = "Name of the virtual network"
   type        = list(string)

@@ -1,25 +1,21 @@
-variable "resource_group_name" {
-  description = "Resource group name"
+variable "subscription_id" {
   type        = string
+  description = "The Azure subscription ID"
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "The name of the resource group containing the AVNM resources"
 }
 
 variable "location" {
-  description = "Location of Azure resource"
-  default     = "eastus2"
   type        = string
+  description = "The Azure region for AVNM deployments"
+  default     = "eastus2"
 }
 
 variable "avnm_name" {
-  description = "Name of the virtual network"
   type        = string
-}
-
-variable "subscription_id" {
-  description = "Subscription ID"
-  type        = string
-}
-
-variable "vnet_name_hub" {
-  description = "Name of the virtual network"
-  type        = string
+  description = "The name of the existing Azure Virtual Network Manager"
+  default     = "avnm-hub-spoke"
 }
