@@ -1,0 +1,8 @@
+name: avnm-lab
+metadata:
+  template: azd-init
+
+# Infrastructure-only project — no application services.
+# Run: azd up   to provision all resources
+# Run: azd down to destroy all resources
+services: {}

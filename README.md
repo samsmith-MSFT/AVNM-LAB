@@ -1,58 +1,92 @@
 # Azure Virtual Network Manager Lab
 
-This Terraform lab environment will deploy an Azure Virtual Network Manager (AVNM) lab. This lab uses GitHub Codespaces which allows you to deploy a containerized dev environment with all dependencies included. Follow the steps below to deploy and manage the lab environment.
+This lab deploys an Azure Virtual Network Manager (AVNM) hub-and-spoke environment using
+**Azure Developer CLI (azd)** with Bicep. It uses GitHub Codespaces so all dependencies are
+included — no local installs required.
+
+## What Gets Deployed
+
+| Resource | Details |
+|----------|---------|
+| Resource Group | `rg-<environment-name>` |
+| Hub VNet | `vnet-avnm-hub` (10.1.0.0/16) |
+| Spoke VNets | `vnet-avnm-spoke1/2/3` (10.2–4.0.0/24) |
+| Azure Firewall | `azfw-hub` (Standard) — routes all spoke traffic |
+| Route Table | `avnm-route-table` — next-hop = firewall |
+| Linux VMs | One per spoke (`Standard_B2ls_v2`, Ubuntu 22.04 LTS) |
+| Network Manager | `avnm-demo` — hub-and-spoke connectivity config |
 
 ## Prerequisites
-- GitHub account
 
-## Steps to Deploy the Lab
+- GitHub account (for Codespaces)
 
-1. **Create a Codespace from the GitHub Repository**
+## Steps to Deploy
 
-   - Navigate to the GitHub repository for this lab.
-   - Click on the `Code` button.
-   - Select the `Codespaces` tab.
-   - Click on `Create codespace on main` (or the appropriate branch).
+1. **Open the Codespace**
+
+   Click **Code → Codespaces → Create codespace on main**.
 
 2. **Login to Azure**
 
-   Open a terminal in the Codespace and run the following command to login to your Azure account:
-
    ```sh
    az login
-
-3. **Update the answers.json File**
-
-    Update the answers.json file with your environment values. The file should look like this:
-
-    ```json
-    {
-      "subscriptionId": "your-subscription-id",
-      "location": "your-location",
-      "resourceGroupName": "your-resource-group-name"
-    }
-4. **Run the Deploy Script**
-
-    Run the deploy.ps1 script to deploy the lab environment:
-
-    ```
-    ./deploy.ps1
-## Clean Up the Lab
-   
-   When you're ready to clean up the lab environment, run the destroy.ps1 script:
-   
-   ```
-   ./destroy.ps1
+   azd auth login
    ```
 
-**Notes**
+3. **Create an AZD environment and set variables**
 
-Ensure you have the necessary permissions to create and manage resources in your Azure subscription.
-Review the Terraform configurations and scripts to understand the resources being deployed and managed. Ensure that the SKU used in the `main.tf` in the `2-compute` module is supported in your chosen location. I would suggest useast2 for the givin SKU or change the SKU as necessary.
+   ```sh
+   azd env new avnm-lab
+   azd env set AZURE_LOCATION eastus2
+   azd env set AZURE_VM_ADMIN_PASSWORD "AzureAdmin123!"
+   ```
 
-**Azure VMs login info**
+   > **Tip:** Change `eastus2` to any region that supports `Standard_B2ls_v2` VMs.
 
-- `Username` = ```azureadmin```
-- `Password` = ```AzureAdmin123!```
+4. **Deploy everything**
+
+   ```sh
+   azd up
+   ```
+
+   Or using the provided script:
+
+   ```sh
+   ./deploy.ps1
+   ```
+
+## Clean Up
+
+```sh
+azd down --force --purge
+```
+
+Or:
+
+```sh
+./destroy.ps1
+```
+
+## Azure VM Login Info
+
+| Field | Value |
+|-------|-------|
+| Username | `azureadmin` |
+| Password | value of `AZURE_VM_ADMIN_PASSWORD` (default: `AzureAdmin123!`) |
+
+## Infrastructure Layout
+
+```
+infra/
+├── main.bicep                 # Subscription-scope entry point
+├── main.parameters.json       # AZD parameter bindings
+└── modules/
+    ├── hub-spoke-lz.bicep     # Hub VNet, firewall, route table, spoke VNets/subnets
+    ├── compute.bicep          # NICs + Linux VMs per spoke
+    └── avnm.bicep             # Network Manager + connectivity config
+```
+
+> **Note:** The `Modules/` directory contains the original Terraform code and can be safely
+> deleted once you've verified the Bicep deployment.
 
 Happy deploying!
