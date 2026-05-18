@@ -1,57 +1,32 @@
-# AVNM Lab Deployment Script
-# 3-module architecture:
-# 1. hub-spoke-lz: Complete networking infrastructure + AVNM + IPAM
-# 2. compute: Virtual machines and compute resources
-# 3. avnm: Security Admin Rules + UDR (Routing) Management
+# Deploy AVNM Lab using Azure Developer CLI (azd)
+# Replaces the previous Terraform-based deploy workflow.
+#
+# Prerequisites:
+#   az login
+#   azd auth login
 
-# Change to the modules directory
-$null = cd /workspaces/AVNM-LAB
+Write-Host "=== AVNM Lab Deployment ===" -ForegroundColor Cyan
 
-# Read the answers.json file
-$answers = Get-Content -Raw -Path "answers.json" | ConvertFrom-Json
-
-# Extract values
-$subscriptionId = $answers.subscriptionId
-$location = $answers.location
-$resourceGroupName = $answers.resourceGroupName
-
-# Find all terraform.tfvars files in the module directories
-$tfvarsFiles = Get-ChildItem -Recurse -Filter "terraform.tfvars" | Sort-Object DirectoryName
-
-# Define the order of directories (3 modules)
-$order = @("1-hub-spoke-lz", "2-compute", "3-avnm")
-
-foreach ($dir in $order) {
-    $tfvarsFile = $tfvarsFiles | Where-Object { $_.DirectoryName -like "*$dir*" }
-    
-    if ($tfvarsFile) {
-        Write-Host "Updating $($tfvarsFile.FullName)"
-        
-        # Read the existing content of the terraform.tfvars file
-        $content = Get-Content -Path $tfvarsFile.FullName
-        
-        # Update the specific values
-        $updatedContent = $content -replace 'subscription_id\s*=\s*".*"', "subscription_id = `"$subscriptionId`""
-        $updatedContent = $updatedContent -replace 'location\s*=\s*".*"', "location = `"$location`""
-        $updatedContent = $updatedContent -replace 'resource_group_name\s*=\s*".*"', "resource_group_name = `"$resourceGroupName`""
-        
-        # Write the updated content back to the terraform.tfvars file
-        Set-Content -Path $tfvarsFile.FullName -Value $updatedContent
-        
-        # Navigate to the directory containing the terraform.tfvars file
-        Set-Location -Path $tfvarsFile.DirectoryName
-        
-        # Run terraform init
-        Write-Host "Running terraform init in $($tfvarsFile.DirectoryName)"
-        terraform init
-        
-        # Run terraform apply with auto-approve
-        Write-Host "Running terraform apply in $($tfvarsFile.DirectoryName)"
-        terraform apply -auto-approve
-        
-        # Navigate back to the root directory
-        Set-Location -Path (Get-Location).Path
-    } else {
-        Write-Host "No terraform.tfvars file found for directory $dir"
-    }
+# Create an azd environment if one doesn't exist
+$envList = azd env list 2>$null
+if (-not $envList -or $envList -notmatch '\S') {
+    Write-Host "No AZD environment found. Creating 'avnm-lab'..."
+    azd env new avnm-lab
 }
+
+# Prompt for VM admin password if not already set
+$adminPassword = azd env get-value AZURE_VM_ADMIN_PASSWORD 2>$null
+if (-not $adminPassword) {
+    $securePassword = Read-Host "Enter VM admin password (default: AzureAdmin123!)" -AsSecureString
+    if ($securePassword.Length -eq 0) {
+        $adminPassword = "AzureAdmin123!"
+    } else {
+        $adminPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+            [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+        )
+    }
+    azd env set AZURE_VM_ADMIN_PASSWORD $adminPassword
+}
+
+Write-Host "Running azd up..." -ForegroundColor Green
+azd up
