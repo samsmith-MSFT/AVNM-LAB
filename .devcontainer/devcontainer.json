@@ -5,9 +5,7 @@
     "ghcr.io/devcontainers/features/azure-cli:1": {
       "version": "latest"
     },
-    "ghcr.io/devcontainers/features/azure-developer-cli:1": {
-      "version": "latest"
-    },
+    "ghcr.io/azure/azure-dev/azd:latest": {},
     "ghcr.io/devcontainers/features/powershell:1": {
       "version": "latest"
     },
